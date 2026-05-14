@@ -105,13 +105,20 @@ public class TransactionController {
                             })),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Transaction not found **or** no Treasury exchange rate available within 6 months of the purchase date",
+                    description = "Transaction not found",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             examples = {
                                     @ExampleObject(
                                             name = "Transaction not found",
-                                            ref = "#/components/examples/ErrorResponse_NotFound"),
+                                            ref = "#/components/examples/ErrorResponse_NotFound")
+                            })),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "No Treasury exchange rate available within 6 months of the purchase date",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = {
                                     @ExampleObject(
                                             name = "Rate unavailable",
                                             ref = "#/components/examples/ErrorResponse_RateUnavailable")

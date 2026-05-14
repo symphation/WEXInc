@@ -38,7 +38,7 @@ public class CreateTransactionRequest {
             example = "87.50",
             minimum = "0.01")
     @NotNull(message = "Purchase amount is required")
-    @Positive(message = "Purchase amount must be a positive value")
+    @DecimalMin(value = "0.01", message = "Purchase amount must be at least 0.01")
     @Digits(integer = 10, fraction = 10, message = "Purchase amount must be a valid numeric value")
     private BigDecimal purchaseAmount;
 }
