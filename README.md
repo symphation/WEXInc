@@ -4,18 +4,20 @@ A RESTful API for storing purchase transactions in US dollars and retrieving the
 
 ## Tech Stack
 
-- **Java 17** / **Spring Boot 3.2**
-- **H2** embedded database (file-backed, no install needed)
-- **Spring WebFlux** (WebClient) for Treasury API integration
-- **SpringDoc OpenAPI** for interactive API docs
-- **JUnit 5 + Mockito + MockWebServer** for testing
+- **Java 21** / **Spring Boot 3.2.5**: The core application framework, providing a robust and production-ready environment.
+- **H2 Embedded Database**: Configured as file-backed (`./data/purchasedb`), ensuring data persistence across application restarts without requiring external database installations.
+- **Spring WebFlux (`WebClient`)**: Provides non-blocking, reactive HTTP client capabilities for resilient integration with the U.S. Treasury API.
+- **SpringDoc OpenAPI (Swagger UI)**: Automatically generates interactive, user-friendly API documentation. Configured with native properties for optimal developer experience (sorted operations, response metrics).
+- **JUnit 5, Mockito & MockWebServer**: A comprehensive testing suite that ensures deterministic, offline validation of the business logic and external API integrations.
 
-## Quick Start
+## How To Use It
 
 ### Prerequisites
-- Java 17+ (tested with OpenJDK 21)
+- Java 17 or higher (developed and tested with **Java 21**)
 
-### Run the Application
+### 1. Run the Application
+
+Execute the following command from the root directory to start the server:
 
 ```bash
 # Unix/Mac
@@ -25,7 +27,13 @@ A RESTful API for storing purchase transactions in US dollars and retrieving the
 gradlew.bat bootRun
 ```
 
-The server starts at **http://localhost:8080**.
+The application will start on **http://localhost:8080**.
+
+### 2. Access the Interactive API Documentation (Swagger UI)
+
+The easiest and most human-friendly way to interact with the API is through the included Swagger UI.
+
+👉 **Open your browser and navigate to:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 ### Run Tests
 

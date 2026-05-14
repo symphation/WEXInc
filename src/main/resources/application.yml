@@ -28,8 +28,11 @@ treasury:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    display-request-duration: true
+    operationsSorter: method
+    disable-swagger-default-url: true
+    doc-expansion: list
   api-docs:
     path: /api-docs
   default-produces-media-type: application/json
   default-consumes-media-type: application/json
-
