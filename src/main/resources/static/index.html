@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WEX Purchase Transactions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #21253a;
+      --border:    #2e3350;
+      --accent:    #4f7cff;
+      --accent-h:  #6b93ff;
+      --green:     #34d399;
+      --red:       #f87171;
+      --yellow:    #fbbf24;
+      --text:      #e2e8f0;
+      --muted:     #8892a4;
+      --radius:    12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    header {
+      max-width: 900px;
+      margin: 0 auto 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      width: 44px; height: 44px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 18px; color: #fff;
+      flex-shrink: 0;
+    }
+
+    header h1 { font-size: 22px; font-weight: 700; }
+    header p  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .badge {
+      margin-left: auto;
+      background: rgba(79,124,255,.15);
+      color: var(--accent);
+      font-size: 12px; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      border: 1px solid rgba(79,124,255,.3);
+    }
+
+    .grid {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .method {
+      font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 6px;
+      letter-spacing: .5px;
+    }
+    .method.post { background: rgba(52,211,153,.15); color: var(--green); }
+    .method.get  { background: rgba(79,124,255,.15);  color: var(--accent); }
+
+    .card-header h2 { font-size: 15px; font-weight: 600; }
+    .card-header .path { font-size: 12px; color: var(--muted); font-family: monospace; margin-top: 1px; }
+
+    label {
+      display: block;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px; font-family: inherit;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+
+    .char-counter {
+      font-size: 11px; color: var(--muted);
+      text-align: right; margin-top: -12px; margin-bottom: 16px;
+    }
+    .char-counter.warn { color: var(--yellow); }
+    .char-counter.over { color: var(--red); }
+
+    button {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      font-family: inherit;
+      padding: 11px;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      margin-top: 4px;
+    }
+    button:hover  { background: var(--accent-h); }
+    button:active { transform: scale(.98); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .result {
+      margin-top: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13px;
+      animation: fadeIn .3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .result-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      font-weight: 600; font-size: 12px;
+      letter-spacing: .3px;
+    }
+    .result.success .result-header { background: rgba(52,211,153,.12); color: var(--green); }
+    .result.error   .result-header { background: rgba(248,113,113,.12); color: var(--red); }
+
+    .result-body {
+      background: rgba(0,0,0,.25);
+      padding: 16px;
+    }
+
+    .field-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .field-row:last-child { border: none; }
+    .field-name  { color: var(--muted); font-size: 12px; }
+    .field-value { font-weight: 500; font-family: monospace; font-size: 13px; text-align: right; max-width: 60%; word-break: break-all; }
+
+    .converted-amount {
+      margin-top: 12px;
+      background: rgba(79,124,255,.08);
+      border: 1px solid rgba(79,124,255,.2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .converted-amount .label { font-size: 12px; color: var(--muted); }
+    .converted-amount .amount { font-size: 22px; font-weight: 700; color: var(--accent); }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .recent-list {
+      max-width: 900px;
+      margin: 24px auto 0;
+    }
+
+    .recent-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .recent-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: border-color .2s;
+    }
+    .recent-item:hover { border-color: var(--accent); }
+    .recent-item .ri-desc { font-weight: 500; font-size: 14px; flex: 1; }
+    .recent-item .ri-amount { font-family: monospace; font-weight: 600; color: var(--green); }
+    .recent-item .ri-id { font-size: 11px; color: var(--muted); font-family: monospace; }
+    .recent-item .ri-date { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">WX</div>
+  <div>
+    <h1>Purchase Transactions</h1>
+    <p>Store and retrieve transactions with live currency conversion</p>
+  </div>
+  <a class="badge" href="/swagger-ui.html" target="_blank">API Docs ↗</a>
+</header>
+
+<div class="grid">
+
+  <!-- ── Store Transaction ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="method post">POST</span>
+      <div>
+        <h2>Store Transaction</h2>
+        <div class="path">/api/transactions</div>
+      </div>
+    </div>
+
+    <label for="desc">Description</label>
+    <input id="desc" type="text" placeholder="e.g. Office supplies" maxlength="60"
+           oninput="updateCounter(this)" />
+    <div class="char-counter" id="desc-counter">0 / 50</div>
+
+    <label for="date">Transaction Date</label>
+    <input id="date" type="date" />
+
+    <label for="amount">Amount (USD)</label>
+    <input id="amount" type="number" placeholder="0.00" step="0.01" min="0.01" />
+
+    <button id="post-btn" onclick="storeTransaction()">Store Transaction</button>
+
+    <div id="post-result"></div>
+  </div>
+
+  <!-- ── Retrieve Transaction ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="method get">GET</span>
+      <div>
+        <h2>Retrieve &amp; Convert</h2>
+        <div class="path">/api/transactions/{id}</div>
+      </div>
+    </div>
+
+    <label for="txn-id">Transaction ID</label>
+    <input id="txn-id" type="text" placeholder="Paste UUID here" />
+
+    <label for="currency">Target Currency</label>
+    <select id="currency">
+      <option value="">Select a currency…</option>
+      <option value="Canada-Dollar">Canada – Dollar (CAD)</option>
+      <option value="Euro Zone-Euro">Euro Zone – Euro (EUR)</option>
+      <option value="United Kingdom-Pound">United Kingdom – Pound (GBP)</option>
+      <option value="Japan-Yen">Japan – Yen (JPY)</option>
+      <option value="Australia-Dollar">Australia – Dollar (AUD)</option>
+      <option value="Switzerland-Franc">Switzerland – Franc (CHF)</option>
+      <option value="China-Renminbi">China – Renminbi (CNY)</option>
+      <option value="Mexico-Peso">Mexico – Peso (MXN)</option>
+      <option value="India-Rupee">India – Rupee (INR)</option>
+      <option value="Brazil-Real">Brazil – Real (BRL)</option>
+      <option value="South Korea-Won">South Korea – Won (KRW)</option>
+      <option value="Sweden-Krona">Sweden – Krona (SEK)</option>
+      <option value="Norway-Krone">Norway – Krone (NOK)</option>
+      <option value="Denmark-Krone">Denmark – Krone (DKK)</option>
+      <option value="New Zealand-Dollar">New Zealand – Dollar (NZD)</option>
+      <option value="Singapore-Dollar">Singapore – Dollar (SGD)</option>
+      <option value="Hong Kong-Dollar">Hong Kong – Dollar (HKD)</option>
+    </select>
+
+    <button id="get-btn" onclick="retrieveTransaction()">Retrieve Transaction</button>
+
+    <div id="get-result"></div>
+  </div>
+
+</div>
+
+<!-- Recent transactions list -->
+<div class="recent-list" id="recent-section" style="display:none">
+  <div class="recent-label">Recently Stored — click to auto-fill ID</div>
+  <div id="recent-items"></div>
+</div>
+
+<script>
+  const recent = [];
+
+  function updateCounter(input) {
+    const counter = document.getElementById('desc-counter');
+    const len = input.value.length;
+    counter.textContent = `${len} / 50`;
+    counter.className = 'char-counter' + (len > 50 ? ' over' : len > 40 ? ' warn' : '');
+  }
+
+  // Set today's date as default
+  document.getElementById('date').valueAsDate = new Date();
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? '<span class="spinner"></span>Loading…'
+      : btn.id === 'post-btn' ? 'Store Transaction' : 'Retrieve Transaction';
+  }
+
+  function showResult(containerId, ok, content) {
+    document.getElementById(containerId).innerHTML =
+      `<div class="result ${ok ? 'success' : 'error'}">
+        <div class="result-header">${ok ? '✓ Success' : '✗ Error'}</div>
+        <div class="result-body">${content}</div>
+      </div>`;
+  }
+
+  function fieldRow(name, value) {
+    return `<div class="field-row">
+      <span class="field-name">${name}</span>
+      <span class="field-value">${value}</span>
+    </div>`;
+  }
+
+  async function storeTransaction() {
+    const desc   = document.getElementById('desc').value.trim();
+    const date   = document.getElementById('date').value;
+    const amount = document.getElementById('amount').value;
+
+    if (!desc)   return showResult('post-result', false, 'Description is required.');
+    if (desc.length > 50) return showResult('post-result', false, 'Description must not exceed 50 characters.');
+    if (!date)   return showResult('post-result', false, 'Transaction date is required.');
+    if (!amount || parseFloat(amount) <= 0) return showResult('post-result', false, 'Purchase amount must be a positive value.');
+
+    setLoading('post-btn', true);
+    try {
+      const res = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: desc, transactionDate: date, purchaseAmount: parseFloat(amount) })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const content = fieldRow('ID', data.id)
+          + fieldRow('Description', data.description)
+          + fieldRow('Date', data.transactionDate)
+          + fieldRow('Amount (USD)', `$${parseFloat(data.purchaseAmount).toFixed(2)}`);
+        showResult('post-result', true, content);
+        document.getElementById('txn-id').value = data.id;
+        addRecent(data);
+      } else {
+        const msg = data.fieldErrors
+          ? Object.entries(data.fieldErrors).map(([k,v]) => `<b>${k}</b>: ${v}`).join('<br>')
+          : data.message;
+        showResult('post-result', false, msg);
+      }
+    } catch (e) {
+      showResult('post-result', false, 'Could not reach the server. Is it running?');
+    } finally {
+      setLoading('post-btn', false);
+    }
+  }
+
+  async function retrieveTransaction() {
+    const id  = document.getElementById('txn-id').value.trim();
+    const cur = document.getElementById('currency').value;
+
+    if (!id)  return showResult('get-result', false, 'Transaction ID is required.');
+    if (!cur) return showResult('get-result', false, 'Please select a target currency.');
+
+    setLoading('get-btn', true);
+    try {
+      const res = await fetch(`/api/transactions/${id}?currency=${encodeURIComponent(cur)}`);
+      const data = await res.json();
+      if (res.ok) {
+        const content = fieldRow('ID', data.id)
+          + fieldRow('Description', data.description)
+          + fieldRow('Date', data.transactionDate)
+          + fieldRow('Original (USD)', `$${parseFloat(data.originalPurchaseAmount).toFixed(2)}`)
+          + fieldRow('Exchange Rate', data.exchangeRate)
+          + fieldRow('Currency', data.targetCurrency)
+          + `<div class="converted-amount">
+              <div class="label">Converted Amount</div>
+              <div class="amount">${parseFloat(data.convertedAmount).toFixed(2)}</div>
+            </div>`;
+        showResult('get-result', true, content);
+      } else {
+        showResult('get-result', false, data.message || 'An error occurred.');
+      }
+    } catch (e) {
+      showResult('get-result', false, 'Could not reach the server. Is it running?');
+    } finally {
+      setLoading('get-btn', false);
+    }
+  }
+
+  function addRecent(txn) {
+    recent.unshift(txn);
+    const section = document.getElementById('recent-section');
+    const list = document.getElementById('recent-items');
+    section.style.display = 'block';
+    list.innerHTML = recent.slice(0, 5).map(t =>
+      `<div class="recent-item" onclick="document.getElementById('txn-id').value='${t.id}'">
+        <div>
+          <div class="ri-desc">${t.description}</div>
+          <div class="ri-id">${t.id}</div>
+        </div>
+        <div class="ri-date">${t.transactionDate}</div>
+        <div class="ri-amount">$${parseFloat(t.purchaseAmount).toFixed(2)}</div>
+      </div>`
+    ).join('');
+  }
+
+  // Allow Enter key to submit forms
+  document.getElementById('amount').addEventListener('keydown', e => { if (e.key === 'Enter') storeTransaction(); });
+  document.getElementById('currency').addEventListener('keydown', e => { if (e.key === 'Enter') retrieveTransaction(); });
+</script>
+</body>
+</html>
